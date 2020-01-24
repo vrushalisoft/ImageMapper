@@ -1,0 +1,54 @@
+{% extends "layout.html" %}
+{% block title %}{{data.title}}{% endblock %}
+{% block content %}
+  <!-- Content Wrapper. Contains page content -->
+  <div class="content-wrapper">
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Classes</h1>
+          </div>
+        </div>
+      </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-12">
+            <!-- Default box -->
+          
+              <div class="row">
+                {% for row in data.data%}
+                <div class="col-md-3">
+                  <!-- small card -->
+                  <div class="small-box bg-danger">
+                    <div class="inner">
+                      <h3>{{row[1]}}</h3>
+                      <p>{{row[2]}}</p>
+                    </div>
+                    <div class="icon">
+                      <i class="fas fa-users"></i>
+                    </div>
+                    <a href="/class/{{row[0]}}" class="small-box-footer">
+                      More info <i class="fas fa-arrow-circle-right"></i>
+                    </a>
+                  </div>
+                </div>
+                {%endfor%} 
+              </div>
+              <!-- /.card-body -->
+            
+            <!-- /.card -->
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- /.content -->
+  </div>
+  <!-- /.content-wrapper -->
+{% endblock %}
+{% block foter %}{% endblock %}

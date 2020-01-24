@@ -1,0 +1,26 @@
+{% extends "fullscreenlayout.html" %}
+{% block title %}Logout{% endblock %}
+
+{% block content %}
+<div class="login-box">
+  <!-- /.login-logo -->
+  <div class="card">
+    <div class="card-body logout-card-body">
+      <div style="text-align:center">
+        <h4 class="logout-box-msg">{{data}}</h4>
+      </div>
+      <br>
+        <div class="row">
+          <!-- /.col -->
+          <div class="col-12">
+            <a href="/logout" class="btn btn-danger">Logout</a>
+            <a href="/classes" class="btn btn-success float-right">Continue</a>
+          </div>
+          <!-- /.col -->
+        </div>
+      <!-- /.social-auth-links -->
+    </div>
+    <!-- /.login-card-body -->
+  </div>
+</div>
+{% endblock %}

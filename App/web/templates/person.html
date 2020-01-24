@@ -1,0 +1,66 @@
+{% extends "layout.html" %}
+{% block title %}{% endblock %}
+{% block content %}
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <section class="content-header">
+    <div class="container-fluid">
+      <div class="row mb-2">
+        <div class="col-sm-6">
+          <h1>Persons</h1>
+        </div>
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="/classes">Classes</a></li>
+            <li class="breadcrumb-item active">Persons</li>
+          </ol>
+        </div><!-- /.col -->
+      </div>
+    </div><!-- /.container-fluid -->
+  </section>
+
+  <!-- Main content -->
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <!-- Default box -->
+ 
+            <div class="row">
+              {% for row in data.data%}
+              <div class="col-lg-3 col-6">
+                <!-- small card -->
+                {% if  row[3] %}
+                  {% set bg_class = "bg-danger" %}
+                {% else %}
+                  {% set bg_class = "bg-success" %}
+                {%endif%}
+                <div class="small-box {{bg_class}}">
+                  <div class="inner">
+                    <h3>{{row[2]}}</h3>
+                    <p></p>
+                  </div>
+                  <div class="icon">
+                    <i class="fas fa-user"></i>
+                  </div>
+                  {% if  row[3] %}
+                  <h5>Taken By {{ row[3] }}</h5>
+                  {% else %}
+                  <a href="/person/{{row[1]}}/{{row[0]}}" class="small-box-footer">
+                    More info <i class="fas fa-arrow-circle-right"></i>
+                  </a>
+                  {%endif%}
+                  
+                </div>
+              </div>
+              {%endfor%}
+              <!-- ./col -->
+            </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <!-- /.content -->
+</div>
+{% endblock %}
+{% block foter %}{% endblock %}
