@@ -148,31 +148,31 @@ class DBHelper:
   def getMapperData(self, cid, pid, prediction_img_path, enroll_img_path):
       querry = "SELECT * FROM mapper where cid={0} AND pid={1} AND prediction_img_path=\'{2}\'".format(cid,pid,prediction_img_path)
       self.connect()
-      person_images = self.cursor.execute(querry)
-      person_image_list = list(person_images)
-      if len(person_image_list) <= 0 :
-        person_image_data = {
+      mappers = self.cursor.execute(querry)
+      mapper_list = list(mappers)
+      if len(mapper_list) <= 0 :
+       mapper_data = {
           'status':False,
           'data':[],
           'msg': 'Person Image Data Doesnot Exists'
         }
       else:
-        person_image_data = {
+       mapper_data = {
           'status':True,
-          'data':person_image_list[0],
+          'data':mapper_list[0],
           'msg': 'Person Image Data Exists'
         }
       self.conn.commit()
       self.conn.close()
-      return person_image_data
+      return mapper_data
 
   def upsertMapperData(self, mapper):
     res = self.getMapperData(mapper['cid'],mapper['pid'],mapper['prediction_img_path'],mapper['enroll_img_path'])
     if res['status']:
       print(res['data'])
-      querry = "UPDATE mapper SET cid={1},pid={2},prediction_img_path=\'{3}\', enroll_img_path=\'{4}\' WHERE mapid={0}".format(res['data'][0],mapper['cid'],mapper['pid'],mapper['prediction_img_path'],mapper['enroll_img_path'])
+      querry = "UPDATE mapper SET cid={1},pid={2},prediction_img_path=\'{3}\', enroll_img_path=\'{4}\', isSkipped={5}, isNotEnrolled={6} WHERE mapid={0}".format(res['data'][0],mapper['cid'],mapper['pid'],mapper['prediction_img_path'],mapper['enroll_img_path'],mapper['isSkipped'],mapper['isNotEnrolled'])
     else:
-      querry = "INSERT into mapper('cid','pid','prediction_img_path','enroll_img_path') VALUES({0},{1},\'{2}\',\'{3}\')".format(mapper['cid'],mapper['pid'],mapper['prediction_img_path'],mapper['enroll_img_path'])
+      querry = "INSERT into mapper('cid','pid','prediction_img_path','enroll_img_path',isSkipped,isNotEnrolled) VALUES({0},{1},\'{2}\',\'{3}\',{4},{5})".format(mapper['cid'],mapper['pid'],mapper['prediction_img_path'],mapper['enroll_img_path'],mapper['isSkipped'],mapper['isNotEnrolled'])
     self.connect()
     self.cursor.execute(querry)
     self.conn.commit()
@@ -308,16 +308,15 @@ class DBHelper:
         else:
           nmatch_data = {
             'status':True,
-            'data':nmatch_list[0],
+            'data':nmatch_list,
             'msg': 'Nearest matches Image Data Exists'
           }
         self.conn.commit()
         self.conn.close()
         return nmatch_data
 
-  def getAllNmatchData(self, image_path):
-        print(image_path)
-        querry = "SELECT * FROM nearest_match where image_path=\'{0}\' ".format(image_path)
+  def getAllNmatchData(self):
+        querry = "SELECT * FROM nearest_match "
         self.connect()
         nmatchs = self.cursor.execute(querry)
         nmatch_list = list(nmatchs)
@@ -336,3 +335,35 @@ class DBHelper:
         self.conn.commit()
         self.conn.close()
         return nmatch_data
+
+  def getAllMapperData(self):
+      querry = """SELECT 
+      class.class_name as class_name,
+      person.name as person_name,
+      mapper.prediction_img_path,
+      mapper.enroll_img_path,
+      mapper.isNotEnrolled,
+      mapper.isSkipped
+      FROM class
+      INNER JOIN person ON class.cid = person.cid
+      INNER JOIN mapper ON person.pid = mapper.pid"""
+      self.connect()
+      mappers = self.cursor.execute(querry)
+      mapper_list = list(mappers)
+      if len(mapper_list) <= 0 :
+        mapper_data = {
+          'status':False,
+          'data':[],
+          'msg': 'Mapper Data Doesnot Exists'
+        }
+      else:
+        mapper_data = {
+          'status':True,
+          'data':mapper_list,
+          'msg': 'Mapper Data Exists'
+        }
+      self.conn.commit()
+      self.conn.close()
+      return mapper_data
+      
+        

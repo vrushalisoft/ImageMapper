@@ -88,7 +88,7 @@ class Traverse:
                 print(matches)
                 if len(matches['data']) <= 0:
                     helper.upsertNmatchData(predict_img_path, image_path)
-                break;
+            
             break;
                 #prediction['recognised_images'].append(image_path)
             #prediction_data.append(prediction)

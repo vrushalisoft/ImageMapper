@@ -30,10 +30,12 @@
               {% for row in data.data%}
               <div class="col-lg-3 col-6">
                 <!-- small card -->
-                {% if  row[3] %}
+                {% if  row[3] and row[3] != data.currentEmail%}
                   {% set bg_class = "bg-danger" %}
+                {% elif row[3] and row[3] == data.currentEmail%}
+                  {% set bg_class = "bg-warning" %}
                 {% else %}
-                  {% set bg_class = "bg-success" %}
+                  {% set bg_class = "bg-info" %}
                 {%endif%}
                 <div class="small-box {{bg_class}}">
                   <div class="inner">
@@ -43,8 +45,13 @@
                   <div class="icon">
                     <i class="fas fa-user"></i>
                   </div>
-                  {% if  row[3] %}
-                  <h5>Taken By {{ row[3] }}</h5>
+                  {% if row[3] and row[3] != data.currentEmail %}
+                  <h5>Taken By {{row[3]}}</h5>
+                  {% elif row[3] and row[3] == data.currentEmail %}
+                  <h5>Taken By You</h5>
+                  <a href="/person/{{row[1]}}/{{row[0]}}" class="small-box-footer">
+                    More info <i class="fas fa-arrow-circle-right"></i>
+                  </a>
                   {% else %}
                   <a href="/person/{{row[1]}}/{{row[0]}}" class="small-box-footer">
                     More info <i class="fas fa-arrow-circle-right"></i>

@@ -1,0 +1,5 @@
+,class_name,person_name,prediction_img_path,enroll_img_path,isSkipped,isNotEnrolled
+0,12,123,/dist/image/classes/12/pred_crops/123/INEW-005242-VEGPZ_2019-10-16_08-00__832__41.png,/dist/image/classes/12/enroll_crops/123/aligned_crop.jpg,0,0
+1,12,123,/dist/image/classes/12/pred_crops/123/INEW-005242-VEGPZ_2019-10-03_08-00__63__6.png,,0,1
+2,12,123,/dist/image/classes/12/pred_crops/123/INEW-005242-VEGPZ_2019-10-03_08-00__78__1.png,,1,0
+3,12,125,/dist/image/classes/12/pred_crops/125/INEW-005242-VEGPZ_2019-10-07_10-01__1042__0.png,,0,1

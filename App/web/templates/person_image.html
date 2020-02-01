@@ -2,104 +2,93 @@
 {% block title %}{% endblock %}
 {% block content %}
   <!-- Content Wrapper. Contains page content -->
-  <div class="content-wrapper">
-    <!-- Content Header (Page header) -->
-    <div class="content-header">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-6">
-            <h1 class="m-0 text-">Image Mapper</h1>
-          </div><!-- /.col -->
-          <div class="col-sm-6">
-            <ol class="breadcrumb float-sm-right">
-              <li class="breadcrumb-item"><a href="/classes">Class</a></li>
-              <li class="breadcrumb-item"><a href="#">Person</a></li>
-              <li class="breadcrumb-item active">Images</li>
-            </ol>
-          </div><!-- /.col -->
-        </div><!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content-header -->
+<div class="content-wrapper">
+  <!-- Content Header (Page header) -->
+  <div class="content-header">
+    <div class="container">
+      <div class="row">
+        <div class="col-sm-6">
+          <h1 class="m-0 text-">Image Mapper</h1>
+        </div><!-- /.col -->
+        <div class="col-sm-6">
+          <ol class="breadcrumb float-sm-right">
+            <li class="breadcrumb-item"><a href="/classes">Class</a></li>
+            <li class="breadcrumb-item"><a href="/class/{{data.data.cid}}">Person</a></li>
+            <li class="breadcrumb-item active">Images</li>
+          </ol>
+        </div><!-- /.col -->
+      </div><!-- /.row -->
+    </div><!-- /.container-fluid -->
+  </div>
+  <!-- /.content-header -->
 
-    <!-- Main content -->
-    <div class="content">
-      <div class="container" style="max-width: 100% !important;">
-        <div class="row">
-          <div class="col-md-3">
-            <div class="card">
-              <div class="card-body">
-                {% for row in data.data.predict%}
-                <a href="#" onclick="nearMatchImgClicked('near_match_{{loop.index}}')">
-                <img class="img-fluid" src="{{row[3]}}" id="'near_match_{{loop.index}}'" alt="Photo">
-                </a>
-                <label for="user1">
-                  {% if row[3] %}
-                  {{row[3].split('/')[(row[3].split('/')|length)-1]}}
-                  {% endif %}
-                </label>
-                {%endfor%}
-                <button type="button" class="btn btn-sm btn-success float-right"><i class="fas fa-chevron-right"></i></button>
-                <button type="button" class="btn btn-sm btn-success float-left"><i class="fas fa-chevron-left"></i></button>
+  <!-- Main content -->
+  <div class="content">
+    <div class="container" style="max-width: 100% !important;">
+      <div class="row">
+        <div class="col-md-3">
+          <div class="card">
+            <div class="card-body">
+              <a onclick="nMapClick()">
+                <img class="img-fluid" id="predictimage" src="" alt="Photo">
+              </a>
+              <label for="predictimage" id="predictlabel"></label>
+              <button type="button" class="btn btn-sm btn-success float-right" id="nextButton" onClick="predictionImageNextClicked()"><i class="fas fa-chevron-right"></i></button>
+              <button type="button" class="btn btn-sm btn-success float-left" id="previousButton" onClick="predictionImagePreviousClicked()"><i class="fas fa-chevron-left"></i></button>
+            </div>
+          </div>
+        </div>
+        <!-- /.col-md-3 -->
+        <div class="col-md-9">
+          <input type="hidden" id="pid" value='{{data.data.pid}}'>
+          <input type="hidden" id="cid" value='{{data.data.cid}}'>
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title" style="font-weight: bold;">Nearest Matching Images</h3>
+                <button class="btn btn-warning float-right" style="margin-right:10px" onClick="MapperNotEnrolled()">Not Enrolled</button>
+                <button class="btn btn-primary float-right" style="margin-right:10px" onClick="Mapper()">Map</button>
+                <button class="btn btn-success float-right" style="margin-right:10px" onClick="MapperSkip()">Skip</button>
+            </div>
+            <div class="card-body scrollable">
+              <div class="row" id='nMatchContainer'>
               </div>
             </div>
           </div>
-          <!-- /.col-md-3 -->
-          <div class="col-md-9">
-            <input type="hidden" id="pid" value='{{data.data.pid}}'>
-            <input type="hidden" id="cid" value='{{data.data.cid}}'>
+        </div>
+      </div>
+      <!-- /.row -->    
+      <div class="row">
+          <div class="col-md-12" style="text-align: center;">
             <div class="card">
               <div class="card-header">
-                <h3 class="card-title" style="font-weight: bold;">Nearest Matching Images</h3>
-                  <button class="btn btn-warning float-right" style="margin-right:10px" onClick="not_enroll()">Not Enrolled</button>
-                  <button class="btn btn-primary float-right" style="margin-right:10px" onClick="Mapper()">Map</button>
-                  <button class="btn btn-success float-right" style="margin-right:10px" onClick="refresh()">Refresh</button>
+                <h3 class="card-title" style="font-weight: bold;">Enrolled Images</h3>
+                <button class="btn btn-success float-right" style="margin-right:10px;" onClick="refreshEnrolled()">Show Enrolled</button>
               </div>
-              <div class="card-body scrollable">
+              <div class="card-body">
                 <div class="row">
-                  <div class="col-sm-2" style="text-align: center;">
-                      <img class="img-fluid person_images"  src="" alt="Photo" id='user1' >
-                    <label for="user1">
+                  {% for row in data.data.enroll%}
+                  <div class="col-sm-2">
+                    <a href="#" onclick="nearMatchImgClicked('enrolled_{{loop.index}}')">
+                    <img class="img-fluid enrolled_images" src="{{row[3]}}" alt="Photo" id='enrolled_{{loop.index}}' >
+                    </a>  
+                    <label style="display: flow-root;" for="user2">
+                      {% if row[3] %}
+                      {{row[3].split('/')[(row[3].split('/')|length)-2]}}
+                      {% endif %}
                     </label>
                   </div>
+                  {%endfor%}
                 </div>
               </div>
-            </div>
+            </div>  
           </div>
-        </div>
-        <!-- /.row -->    
-        <div class="row">
-            <div class="col-md-12" style="text-align: center;">
-              <div class="card">
-                <div class="card-header">
-                  <h3 class="card-title" style="font-weight: bold;">Enrolled Images</h3>
-                  <button class="btn btn-success float-right" style="margin-right:10px;" onClick="refreshEnrolled()">Show Enrolled</button>
-                </div>
-                <div class="card-body">
-                  <div class="row">
-                    {% for row in data.data.enroll%}
-                    <div class="col-sm-2">
-                      <a href="#" onclick="nearMatchImgClicked('enrolled_{{loop.index}}')">
-                      <img class="img-fluid enrolled_images" src="{{row[3]}}" alt="Photo" id='enrolled_{{loop.index}}' >
-                      </a>  
-                      <label style="display: flow-root;" for="user2">
-                        {% if row[3] %}
-                        {{row[3].split('/')[(row[3].split('/')|length)-1]}}
-                        {% endif %}
-                      </label>
-                    </div>
-                    {%endfor%}
-                  </div>
-                </div>
-              </div>  
-            </div>
-            <!-- /.col-md-12-->
-        </div>
-        <!-- /.row -->
-      </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content -->
+          <!-- /.col-md-12-->
+      </div>
+      <!-- /.row -->
+    </div><!-- /.container-fluid -->
   </div>
+  <!-- /.content -->
+</div>
   <!-- /.content-wrapper -->
 
 {% endblock %}

@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, jsonify, session, url_for
 from dbhelper import DBHelper
 from traverse import Traverse
+import pandas as pd  
 
 global_session = {}
 
@@ -120,7 +121,7 @@ def person_image(cid,pid):
   global global_session
   if not isLogin():
     return redirect('/login')
-  helper.upsertGlobalSessionData(getMailIdFromSession(),int(pid))  
+  helper.upsertGlobalSessionData(getMailIdFromSession(),int(pid))
   init_res = {
         'status': False,
         'data' : (),
@@ -154,6 +155,20 @@ def person_image(cid,pid):
   else:
     return render_template('person_image.html',data=init_res)
 
+@app.route('/api/person/<cid>/<pid>', methods=['GET'])
+def person_image_data(cid,pid):
+  global global_session
+  error_res = {
+        'status': False,
+        'data' : (),
+        'msg': 'Not Authorize, Please Login'  
+    }
+  if not isLogin():
+    return jsonify(error_res)
+  res_predict = helper.getClassPredictImageData(cid,pid)
+  print("HERE .......................")
+  print(res_predict)
+  return jsonify(res_predict)
 
 # @app.route('/mapper', methods=['POST'])
 # def Mappeerdata():
@@ -164,11 +179,67 @@ def postMapper():
       'cid' : request.form['cid'],
       'pid' : request.form['pid'],
       'prediction_img_path' : request.form['prediction_img_path'],
-      'enroll_img_path' : request.form['enroll_img_path'] 
+      'enroll_img_path' : request.form['enroll_img_path'],
+      'isSkipped':request.form['isSkipped'],
+      'isNotEnrolled':request.form['isNotEnrolled']
       }
     res = helper.upsertMapperData(mapper)
     return jsonify(res)
 
+@app.route('/api/mapper', methods=['GET'])
+def Mapper():
+  if not isLogin():
+    return redirect('/login')
+  init_res = {
+        'status': False,
+        'data' : (),
+        'title': 'Mapper Data'
+    }
+  res = helper.getAllMapperData()
+  classes = []
+  persons = []
+  prediction_img_path = []
+  enroll_img_path = []
+  isSkipped = []
+  isNotEnrolled = []
+  print(res)
+  print(len(res['data']))
+  for row in res['data']:
+    print(row)
+    classes.append(row[0])    
+    persons.append(row[1])
+    prediction_img_path.append(row[2])
+    enroll_img_path.append(row[3])
+    isSkipped.append(row[4])
+    isNotEnrolled.append(row[5])       
+  dict ={
+    "class_name": classes,
+    "person_name": persons,
+    "prediction_img_path": prediction_img_path,
+    "enroll_img_path": enroll_img_path,
+    "isSkipped": isSkipped,
+    "isNotEnrolled": isNotEnrolled   
+  }
+
+  df = pd.DataFrame(dict)
+  df.to_csv('DataExport.csv')
+  return jsonify(res)
+
+@app.route('/nmap', methods=['GET'])
+def nmatch():
+  if not isLogin():
+    return redirect('/login')
+  init_res = {
+        'status': False,
+        'data' : (),
+        'title': 'Nmatch'
+    }
+  res = helper.getAllNmatchData()
+  print(res)
+  if res['status']:
+    res['title'] = 'Nmatch'
+    return jsonify(res)
+ 
 @app.route('/logout')
 def logout():
    # remove the username from the session if it is there
@@ -191,8 +262,9 @@ def getMailIdFromSession():
     return ''
 
 def folder_scan():
+  pass
   #help_scan.data_struct()
-  help_scan.scan_json()
+  #help_scan.scan_json()
 
 if __name__ == "__main__":
   folder_scan()
