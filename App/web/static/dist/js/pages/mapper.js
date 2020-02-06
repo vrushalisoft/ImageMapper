@@ -1,6 +1,7 @@
 var nmatch_data = []
 var predicted_data = []
 
+var map_data = []
 var current_page = 1
 var current_data = {}
 
@@ -14,8 +15,6 @@ function nMapClick() {
   var img_path = $('#predictimage').attr('src')
   $('#nMatchContainer').html('')
   $.each(nmatch_data, function (indx, row) {
-    console.log("nMap get clicked");
-    console.log(img_path, row[1]);
     console.log(row[1]==img_path);
     if (row[1]==img_path) {
       var html = `
@@ -30,11 +29,7 @@ function nMapClick() {
       `
       $('#nMatchContainer').append(html)
     } 
-  
-    
   })
-  
-
 }
 
 function postData(data) {
@@ -61,6 +56,7 @@ function postData(data) {
         else {
           notifyUser('success', json.msg)
         }
+        predictionImageNextClicked()
     },
     error: function (data) {
       notifyUser('error', 'Error Saving Mapping')
@@ -73,15 +69,18 @@ function postData(data) {
 function Mapper(){
   var values = getValues(false, false, false)
   postData(values)
+  
 }
 function MapperSkip(){
   var values = getValues(true, false, true)
   postData(values)
+ 
 }
 function MapperNotEnrolled(){
   var values = getValues(false, true, true)
   postData(values)
-}
+}  
+
 function getValues(isSkip, isNotEnrolled, isEnrollPathBlank){
   return{
     cid: $('#cid').val(),
@@ -131,6 +130,10 @@ function  getPredictDataUrl() {
   return used_host  + '/api'+'/person'+'/'+$('#cid').val() +'/'+ $('#pid').val()
 }
 
+function  getMappedDataUrl() {
+  return used_host  + '/api'+'/mapper'+'/'+$('#cid').val() +'/'+ $('#pid').val()
+}
+
 function getPredictData(){
   $.ajax({
     cache: false,
@@ -178,7 +181,7 @@ function renderPredictionImage() {
   var name = image_parts.length>0?image_parts[image_parts.length-1]:''
   $('#predictlabel').html(name)
   nMapClick()
-}
+ }
 
 function predictionImageNextClicked() {
   if(current_page == predicted_data.length) {
@@ -193,6 +196,7 @@ function predictionImageNextClicked() {
     renderPredictionImage()
   }
 }
+
 function predictionImagePreviousClicked() {
   if(current_page == 1) {
     notifyUser('error', 'Already Showing First Entry!')
@@ -207,5 +211,37 @@ function predictionImagePreviousClicked() {
   
 }
 
+function getmappeddata(){
+  $.ajax({
+    cache: false,
+    type: 'GET',
+    url: getMappedDataUrl(),
+    xhrFields: {
+        // The 'xhrFields' property sets additional fields on the XMLHttpRequest.
+        // This can be used to set the 'withCredentials' property.
+        // Set the value to 'true' if you'd like to pass cookies to the server.
+        // If this is enabled, your server must respond with the header
+        // 'Access-Control-Allow-Credentials: true'.
+        withCredentials: false
+    },
+    success: function (json) {
+        if (!json.status) {
+          console.error('Serverside Error While Geting Nmatched row');
+          console.error(json.message)
+        }
+        else {
+          map_data = json.data
+          console.log(map_data)
+        }
+    },
+    error: function (data) {
+        console.log("Error While Getting Nmatched Data");
+        console.log(data);
+    }
+  });
+}
+
+
+getmappeddata()
 getPredictData()
 getnmapdata()

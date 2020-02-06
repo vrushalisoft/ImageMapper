@@ -25,7 +25,6 @@ class Traverse:
             if len(class_id) <= 0:
                 helper.insertclassid(c1)
                 class_id = helper.getclassid(c1)
-
             path2 = os.path.join(path, c1)
             l2_list = os.listdir(path2)
 

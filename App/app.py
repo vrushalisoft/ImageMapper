@@ -9,7 +9,9 @@ app = Flask(__name__,
             static_url_path='', 
             static_folder='web/static',
             template_folder='web/templates')
-            
+
+app.config["DEBUG"] = True
+
 app.secret_key = "abcdhkjhfdh" 
 
 helper = DBHelper()
@@ -37,32 +39,32 @@ def login():
       'title': 'Login'
   }
   if request.method == 'POST':
-      user = {
-          'email': request.form['email'],
-          'password': request.form['pass']
-      }
-      print(user['email'])
-      session['email'] = user['email']
-      res = helper.userExists(user, True)
-      if res['status']:
-          userId = res['data']['userId']
-          
-          return redirect ('/classes')
-      else:
-          res['title'] = 'Login'
-          res['init'] = False
-          return render_template('login.html', data=res)
-  else: 
+    user = {
+      'email': request.form['email'],
+      'password': request.form['pass']
+    }
+    print(user['email'])
+    session['email'] = user['email']
+    res = helper.userExists(user, True)
+    print(res)
+    if res['status']:
+      userId = res['data']['userId']  
+      return redirect ('/classes')
+    else:
+      res['title'] = 'Login'
+      res['init'] = False
       return render_template('login.html', data=res)
+  else: 
+    return render_template('login.html', data=res)
 
 @app.route('/classes', methods=['GET'])
 def classes():
   if not isLogin():
     return redirect('/login')
   init_res = {
-        'status': False,
-        'data' : (),
-        'title': 'Classes'
+    'status': False,
+    'data' : (),
+    'title': 'Classes'
     }
   res = helper.getClassData()
   print(res)
@@ -74,39 +76,38 @@ def classes():
 
 @app.route('/register', methods=['GET','POST'])
 def register():
-    res = {
-        'init' : True,
-        'status': False,
-        'data':[],
-        'msg':'',
-        'title': 'Register'
+  res = {
+      'init' : True,
+      'status': False,
+      'data':[],
+      'msg':'',
+      'title': 'Register'
+  }
+  if request.method == 'POST':
+    user = {
+        'email': request.form['email'],
+        'password': request.form['pass']
     }
-    if request.method == 'POST':
-        user = {
-            'email': request.form['email'],
-            'password': request.form['pass']
-        }
-        res = helper.registerUser(user)
-        res['title'] = 'Register'
-        res['init'] = False
-        if res['status'] :
-            return redirect('login')
-        else:
-            return render_template('register.html', data=res)
+    res = helper.registerUser(user)
+    res['title'] = 'Register'
+    res['init'] = False
+    if res['status'] :
+      return redirect('login')
     else:
-        return render_template('register.html', data=res)   
+      return render_template('register.html', data=res)
+  else:
+    return render_template('register.html', data=res)   
 
 @app.route('/class/<cid>', methods=['GET'])
 def person(cid):
   if not isLogin():
     return redirect('/login')
   currentEmail = getMailIdFromSession()
-
   init_res = {
-        'status': False,
-        'data' : (),
-        'title': 'Persons'  
-    }
+    'status': False,
+    'data' : (),
+    'title': 'Persons'  
+  }
   res = helper.getPersonData(cid)
   print(res)
   if res['status']:
@@ -123,9 +124,9 @@ def person_image(cid,pid):
     return redirect('/login')
   helper.upsertGlobalSessionData(getMailIdFromSession(),int(pid))
   init_res = {
-        'status': False,
-        'data' : (),
-        'title': 'Person Images'  
+      'status': False,
+      'data' : (),
+      'title': 'Person Images'  
     }
   res_enroll = helper.getClassEnrollImageData(cid,pid)
   res_predict = helper.getClassPredictImageData(cid,pid)
@@ -159,14 +160,13 @@ def person_image(cid,pid):
 def person_image_data(cid,pid):
   global global_session
   error_res = {
-        'status': False,
-        'data' : (),
-        'msg': 'Not Authorize, Please Login'  
+      'status': False,
+      'data' : (),
+      'msg': 'Not Authorize, Please Login'  
     }
   if not isLogin():
     return jsonify(error_res)
   res_predict = helper.getClassPredictImageData(cid,pid)
-  print("HERE .......................")
   print(res_predict)
   return jsonify(res_predict)
 
@@ -225,6 +225,21 @@ def Mapper():
   df.to_csv('DataExport.csv')
   return jsonify(res)
 
+@app.route('/api/mapper/<cid>/<pid>', methods=['GET'])
+def mapper_image_data(cid,pid):
+  global global_session
+  error_res = {
+        'status': False,
+        'data' : (),
+        'msg': 'Not Authorize, Please Login'  
+    }
+  if not isLogin():
+    return jsonify(error_res)
+  res= helper.getMappedData(cid,pid)
+  print("HERE Mapped....................")
+  print(res)
+  return jsonify(res)
+
 @app.route('/nmap', methods=['GET'])
 def nmatch():
   if not isLogin():
@@ -235,16 +250,13 @@ def nmatch():
         'title': 'Nmatch'
     }
   res = helper.getAllNmatchData()
-  print(res)
-  if res['status']:
-    res['title'] = 'Nmatch'
-    return jsonify(res)
+  return jsonify(res)
  
 @app.route('/logout')
 def logout():
    # remove the username from the session if it is there
-   session.pop('email', None)
-   return redirect(url_for('index'))
+  session.pop('email', None)
+  return redirect(url_for('index'))
 
 def isLogin():
   if 'email' in session:

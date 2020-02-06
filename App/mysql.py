@@ -63,11 +63,12 @@ class DBHelper:
     except  Exception as e:
       print('Exception In Get Person Data')
       print(e)
+
     self.conn.close()
     return person_data  
 
   def getClassEnrollImageData(self, cid, pid):
-    querry = "SELECT * FROM person_image where is_Enroll=1 AND cid={0} AND pid={1}".format(cid,pid);
+    querry = "SELECT * FROM person_image where is_Enroll='True' AND cid={0} AND pid={1}".format(cid,pid);
     self.connect()
     try:
       enroll_images = self.cursor.execute(querry)
@@ -92,7 +93,7 @@ class DBHelper:
     return enroll_image_data  
 
   def getClassPredictImageData(self, cid, pid):
-    querry = "SELECT * FROM person_image where is_Enroll=0 AND cid={0} AND pid={1}".format(cid,pid);
+    querry = "SELECT * FROM person_image where is_Enroll='False' AND cid={0} AND pid={1}".format(cid,pid);
     self.connect()
     try:
       predict_images = self.cursor.execute(querry)
@@ -201,14 +202,12 @@ class DBHelper:
       print(res['data'])
       querry = "UPDATE mapper SET cid={1},pid={2},prediction_img_path=\'{3}\', enroll_img_path=\'{4}\', isSkipped={5}, isNotEnrolled={6} WHERE mapid={0}".format(res['data'][0],mapper['cid'],mapper['pid'],mapper['prediction_img_path'],mapper['enroll_img_path'],mapper['isSkipped'],mapper['isNotEnrolled'])
     else:
-      querry = "INSERT into mapper(cid,pid,prediction_img_path,enroll_img_path,isSkipped,isNotEnrolled) VALUES({0},{1},\'{2}\',\'{3}\',{4},{5})".format(mapper['cid'],mapper['pid'],mapper['prediction_img_path'],mapper['enroll_img_path'],mapper['isSkipped'],mapper['isNotEnrolled'])
+      querry = "INSERT into mapper('cid','pid','prediction_img_path','enroll_img_path',isSkipped,isNotEnrolled) VALUES({0},{1},\'{2}\',\'{3}\',{4},{5})".format(mapper['cid'],mapper['pid'],mapper['prediction_img_path'],mapper['enroll_img_path'],mapper['isSkipped'],mapper['isNotEnrolled'])
     self.connect()
     try:
       self.cursor.execute(querry)
       self.conn.commit()
-    except Exception as e:
-      print('Exception In Upsert Mapper Data')
-      print(e)  
+    except:
     # Rollback in case there is any error  
       self.conn.rollback() 
     self.conn.close()
@@ -219,43 +218,38 @@ class DBHelper:
     }    
 
   def insertclassid(self, class_name):
-    querry = "insert into class(class_name) VALUES (\'{0}\')".format(class_name.lower())
+    querry = "insert into class('class_name') VALUES (\'{0}\')".format(
+        class_name.lower())
     self.connect()
     try:
       self.cursor.execute(querry)
       self.conn.commit()
-      
-    except Exception as e:
-      print('Exception In Get Mapper Data')
-      print(e)  
-      # Rollback in case there is any error  
+    except:
+    # Rollback in case there is any error  
       self.conn.rollback()   
     self.conn.close()
 
   def insertpersonid(self, class_id, person_name):
-    querry = "insert into person(cid,name) VALUES (\'{0}\',\'{1}\')".format(class_id, person_name.lower())
+    querry = "insert into person('cid','name') VALUES (\'{0}\',\'{1}\')".format(
+        class_id, person_name.lower())
     self.connect()
     try:
       self.cursor.execute(querry)
       self.conn.commit()
-    except Exception as e:
-      print('Exception In Get Mapper Data')
-      print(e)  
-      # Rollback in case there is any error  
+    except:
+    # Rollback in case there is any error  
       self.conn.rollback()   
     self.conn.close()
 
   def insertpersonimage(self, class_id, person_id, img_path, is_enroll):
-    querry = "insert into person_image(cid, pid, image_path, is_enroll) VALUES (\'{0}\',\'{1}\',\'{2}\',{3})".format(
-        class_id, person_id, img_path, 1 if is_enroll else 0)
+    querry = "insert into person_image('cid','pid','image_path','is_enroll') VALUES (\'{0}\',\'{1}\',\'{2}\',\'{3}\')".format(
+        class_id, person_id, img_path, is_enroll)
     self.connect()
     try:
       self.cursor.execute(querry)
       self.conn.commit()
-      print("insert image")
-    except Exception as e:
-      print('Exception In Get Class Id Data')
-      print(e)   
+    except:
+    # Rollback in case there is any error  
       self.conn.rollback()   
     self.conn.close()
 
@@ -264,7 +258,7 @@ class DBHelper:
     self.connect()
     try:
       classs_id = self.cursor.execute(querry)
-      classid =self.cursor.fetchall()    
+      classid =self.cursor.fetchall()     
      
     except Exception as e:
       print('Exception In Get Class Id Data')
@@ -273,21 +267,22 @@ class DBHelper:
     return classid
 
   def getpersonid(self, class_id, person_name):
-    querry = "select pid from person where name=\'{0}\'and cid=\'{1}\'".format(person_name.lower(), class_id)
+    querry = "select pid from person where name=\'{0}\'and cid=\'{1}\'".format(
+        person_name.lower(), class_id)
     self.connect()
     try:
       personn_id = self.cursor.execute(querry)
       person_id = self.cursor.fetchall()
      
-    except Exception as e:
+    excep Exception as e:
       print('Exception In Get Person Id Data')
       print(e)   
     self.conn.close()
     return person_id
 
   def getpersonimage(self, class_id, person_id, img_path, is_enroll):
-    querry = "select * from person_image where cid =\'{0}\'and pid=\'{1}\'and image_path =\'{2}\'and is_enroll ={3}".format(
-        class_id, person_id, img_path, 1 if is_enroll else 0)
+    querry = "select * from person_image where cid =\'{0}\'and pid=\'{1}\'and image_path =\'{2}\'and is_enroll =\'{3}\'".format(
+        class_id, person_id, img_path, is_enroll)
     self.connect()
     try:
       is_imagee_exist = self.cursor.execute(querry)
@@ -331,15 +326,13 @@ class DBHelper:
       print(res['data'])
       querry = "UPDATE global_session SET pid={0} WHERE email=\'{1}\'".format(pid, email)
     else:
-      querry = "INSERT into global_session(pid, email) VALUES({0},\'{1}\')".format(pid,email)
+      querry = "INSERT into global_session('pid','email') VALUES({0},\'{1}\')".format(pid,email)
     self.connect()
     try:
       self.cursor.execute(querry)
       self.conn.commit()
-    except Exception as e:
-      print('Exception In Get session Data')
-      print(e)  
-      # Rollback in case there is any error  
+    except:
+    # Rollback in case there is any error  
       self.conn.rollback()   
     self.conn.close()
     return {
@@ -354,15 +347,13 @@ class DBHelper:
       print(res['data'])
       querry = "UPDATE nearest_match SET image_path=\'{1}\', nmatch_path=\'{2}\' WHERE nid={0}".format(image_path,nmatch_path)
     else:
-      querry = "INSERT into nearest_match(image_path, nmatch_path) VALUES(\'{0}\',\'{1}\')".format(image_path,nmatch_path)
+      querry = "INSERT into nearest_match('image_path','nmatch_path') VALUES(\'{0}\',\'{1}\')".format(image_path,nmatch_path)
     self.connect()
     try:
       self.cursor.execute(querry)
       self.conn.commit()
-    except Exception as e:
-      print('Exception In Get Mapper Data')
-      print(e)  
-      # Rollback in case there is any error  
+    except:
+    # Rollback in case there is any error  
       self.conn.rollback()   
     self.conn.close()
     return {
@@ -402,11 +393,19 @@ class DBHelper:
     try:
       nmatchs = self.cursor.execute(querry)
       nmatch_list = self.cursor.fetchall()
-      nmatch_data = {
-        'status':True,
-        'data':nmatch_list,
-        'msg': 'Nearest matches Image Data Exists'
-      } 
+      if len(nmatch_list) <= 0 :
+        nmatch_data = {
+          'status':False,
+          'data':[],
+          'msg': 'Nearest matches Data Doesnot Exists'
+        }
+      else:
+        nmatch_data = {
+          'status':True,
+          'data':nmatch_list,
+          'msg': 'Nearest matches Image Data Exists'
+        }
+      
     except Exception as e:
       print('Exception In Get All Nmatch Data')
       print(e)
@@ -464,9 +463,10 @@ class DBHelper:
           'status':True,
           'data':mapper_list,
           'msg': 'Mapped Image Data Exists'
-        } 
+        }
+      
     except Exception as e:
-      print('Exception In Get Mapped Data')
+      print('Exception In Get Mapper Data')
       print(e) 
     self.conn.close()
     return mapper_data  
